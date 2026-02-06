@@ -1,0 +1,26 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import LoginView from '../views/LoginView.vue'
+import HomeView from '../views/HomeView.vue'
+import PerformersView from '../views/PerformersView.vue'
+import { isAuthed } from '../services/auth'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/login', name: 'login', component: LoginView },
+    { path: '/', name: 'home', component: HomeView, meta: { requiresAuth: true } },
+    { path: '/performers', name: 'performers', component: PerformersView, meta: { requiresAuth: true } },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+  ],
+})
+
+router.beforeEach((to) => {
+  if (to.meta.requiresAuth && !isAuthed()) {
+    return { name: 'login' }
+  }
+  if (to.name === 'login' && isAuthed()) {
+    return { name: 'home' }
+  }
+})
+
+export default router
